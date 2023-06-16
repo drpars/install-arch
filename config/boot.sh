@@ -16,9 +16,9 @@ EOF
 touch /boot/loader/entries/arch.conf
 cat >> /boot/loader/entries/arch.conf << EOF
 title   Arch Linux
-linux   /vmlinuz-linux
+linux   /vmlinuz-linux-zen
 initrd  /intel-ucode.img
-initrd  /initramfs-linux.img
+initrd  /initramfs-linux-zen.img
 options root=LABEL=Root rw rootfstype=ext4 systemd.unit=graphical.target nvidia-drm.modeset=1 resume=UUID= resume_offset=
 # 1--> root=PARTUUID= , 2--> resume=UUID= , 3--> resume_offset=
 EOF

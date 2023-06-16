@@ -36,7 +36,8 @@ chmod 600 /mnt/swapfile
 mkswap /mnt/swapfile
 swapon /mnt/swapfile
 
-chmod +x /install-arch/config/*.sh
-pacstrap /mnt base base-devel linux linux-firmware intel-ucode neovim git networkmanager
+cp -r install-arch/ /mnt
+chmod +x /mnt/install-arch/config/*.sh
+pacstrap /mnt base base-devel linux-zen linux-firmware intel-ucode neovim git networkmanager
 genfstab -U /mnt >> /mnt/etc/fstab
 arch-chroot /mnt ./install-arch/config/setup.sh
