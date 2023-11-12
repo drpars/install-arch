@@ -4,6 +4,8 @@
 
 # Local - Time Settings (Turkish language - Time --> Istanbul)
 ./install-arch/config/tr_locale.sh
+# Set hostname
+./install-arch/config/hostname.sh
 # User Settings
 ./install-arch/config/user.sh
 # Personalization pacman installer
@@ -17,4 +19,4 @@
 
 systemctl enable NetworkManager
 
-printf "%s\n" "Arch Install Completed" "You can rebbot system" 
+printf "%s\n" "Arch Install Completed" "You can rebbot system"

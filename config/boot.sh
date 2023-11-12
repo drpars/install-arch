@@ -8,13 +8,13 @@ cp /usr/share/edk2-shell/x64/Shell.efi /efi/shellx64.efi
 bootctl --esp-path=/efi --boot-path=/boot --efi-boot-option-description="Arch Linux" install
 
 mkdir -p /efi/loader/entries
-cat > /efi/loader/loader.conf << EOF
+cat >/efi/loader/loader.conf <<EOF
 default  arch.conf
 timeout  menu-force
 console-mode 0
 EOF
 touch /boot/loader/entries/arch.conf
-cat >> /boot/loader/entries/arch.conf << EOF
+cat >>/boot/loader/entries/arch.conf <<EOF
 title   Arch Linux
 linux   /vmlinuz-linux-zen
 initrd  /intel-ucode.img
@@ -24,7 +24,7 @@ options root=LABEL=Root rw rootfstype=ext4 systemd.unit=graphical.target nvidia-
 EOF
 
 # Adds a pacman hook which is executed every time systemd is upgraded.
-cat > /etc/pacman.d/hooks/95-systemd-boot.hook << EOF
+cat >/etc/pacman.d/hooks/95-systemd-boot.hook <<EOF
 [Trigger]
 Type = Package
 Operation = Upgrade
@@ -35,3 +35,4 @@ Description = Gracefully upgrading systemd-boot...
 When = PostTransaction
 Exec = /usr/bin/systemctl restart systemd-boot-update.service
 EOF
+

@@ -8,7 +8,7 @@ pacman -S --needed --noconfirm xdg-utils coreutils util-linux procps-ng exa pacm
 pacman -S --needed --noconfirm xdg-user-dirs
 # Compression tools
 pacman -S --needed --noconfirm zip unzip unrar p7zip lzop tar
-# Network                                                                 
+# Network
 pacman -S --needed --noconfirm samba nfs-utils bind
 # Bluetooth
 pacman -S --needed --noconfirm bluez bluez-utils
@@ -16,7 +16,7 @@ pacman -S --needed --noconfirm bluez bluez-utils
 pacman -S --needed --noconfirm exfatprogs e2fsprogs dosfstools gvfs gvfs-mtp gvfs-smb gvfs-nfs
 # Sound
 pacman -S --needed --noconfirm wireplumber pipewire pipewire-alsa pipewire-pulse pipewire-jack
-# Multimedia 
+# Multimedia
 pacman -S --needed --noconfirm gst-plugins-base gst-plugins-good gst-plugins-ugly gst-plugins-bad gst-plugin-pipewire gst-libav libde265
 # Printer
 pacman -S --needed --noconfirm cups cups-pdf cups-filters libcups
