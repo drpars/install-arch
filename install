@@ -14,7 +14,7 @@ mkdir -p "$rootmnt"/{efi,boot,home}
 # other mountable partition
 mount "$targetefi" "$rootmnt"/efi
 mount "$targetboot" "$rootmnt"/boot
-mount "$targethome" "$rootmnt"/mnt/home
+mount "$targethome" "$rootmnt"/home
 # Swap file
 echo "Creating swapfile..."
 dd if=/dev/zero of="$rootmnt"/swapfile bs=1M count=8192 status=progress
@@ -91,7 +91,7 @@ arch-chroot "$rootmnt" bootloaderopts
 
 # Pacman options
 pacmanopts
-# SSh options
+# SSH options
 sshopts
 
 # Lock the root account
