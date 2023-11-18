@@ -48,7 +48,7 @@ echo $username:$userpasswrd | chpasswd -R "$rootmnt"
 
 
 # Create a basic kernel cmdline
-echo "root=LABEL=Root quiet rw rootfstype=ext4 systemd.unit=graphical.target nvidia-drm.modeset=1" >"$rootmnt"/etc/kernel/cmdline
+echo "root=LABEL=Root resume=UUID=$swapuuid resume_offset=$swapopt quiet rw rootfstype=ext4 systemd.unit=graphical.target nvidia-drm.modeset=1" >"$rootmnt"/etc/kernel/cmdline
 # Change the HOOKS in mkinitcpio.conf to use systemd hooks
 sed -i -e 's/base udev/base systemd/g' "$rootmnt"/etc/mkinitcpio.conf
 # Change the preset file to generate a Unified Kernel Image
@@ -89,6 +89,10 @@ if [[ "$(efivar -d --name 8be4df61-93ca-11d2-aa0d-00e098032b8c-SetupMode)" -eq 1
 else
   echo "Not in Secure Boot setup mode. Skipping..."
 fi
+
+# To sign automatically after Generating UKI
+printf "%s\n" "#!/usr/bin/env bash" "sbctl sign-all" | tee "$rootmnt"//etc/initcpio/post/uki-sbctl
+chmod +x "$rootmnt"/etc/initcpio/post/uki-sbctl
 
 # Install the systemd-boot bootloader
 bootloaderopts
