@@ -1,11 +1,14 @@
 #!/bin/bash
 
+# cputype --> intel , amd 
+# kernel  --> linux , linux-lts , linux-zen , linux-hardened 
+
 # Config Options
-cputype="amd"
-kernel="linux"
+cputype=""
+kernel=""
 # Username and Computer name
-hostname="PANTHERA-DR-ARCH"
-username="drpars"
+hostname=""
+username=""
 # User passwords
 userpasswrd=""
 rootpasswrd=""

@@ -37,7 +37,7 @@ rm "$rootmnt"/etc/{machine-id,localtime,hostname,shadow,locale.conf} ||
     --welcome=false
 arch-chroot "$rootmnt" locale-gen
 # Font
-echo "FONT=$font" >>/etc/vconsole.conf
+echo "FONT=$font" >>"$rootmnt"/etc/vconsole.conf
 
 # Create user
 echo "Creating local user..."
@@ -107,7 +107,7 @@ fi
 arch-chroot "$rootmnt" usermod -L root
 
 echo "-----------------------------------"
-echo "- Install complete. Rebooting.... -"
+echo "-     Installation complete.      -"
 echo "-----------------------------------"
-sleep 10
+sleep 5
 sync
