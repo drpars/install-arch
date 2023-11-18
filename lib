@@ -26,13 +26,8 @@ homemnt="/mnt/home"
 # Language, vconsole font and timezone
 locale="tr_TR.UTF-8"
 keymap="trq"
-font="LatArCyrHeb-1"
+font="LatArCyrHeb-16"
 timezone="Europe/Istanbul"
-
-# Root part uuid
-rootuuid=$(lsblk -dno PARTUUID "$targetroot")
-swapuuid=$(findmnt -no UUID -T "$rootmnt"/swapfile)
-swapopt=$(filefrag -v "$rootmnt"/swapfile | awk '$1=="0:" {print substr($4, 1, length($4)-2)}')
 
 # Pacstrap
 pacstrappacks=(
