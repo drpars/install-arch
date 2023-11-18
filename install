@@ -43,7 +43,7 @@ echo "FONT=$font" >>/etc/vconsole.conf
 echo "Creating local user..."
 arch-chroot "$rootmnt" useradd -G wheel -m "$username"
 sed -i '/# %wheel ALL=(ALL:ALL) ALL/s/^# //g' "$rootmnt"/etc/sudoers
-echo "$username":$userpasswrd | chpasswd -R "$rootmnt"
+echo $username:$userpasswrd | chpasswd -R "$rootmnt"
 # echo root:$rootpasswrd | chpasswd -R "$rootmnt"
 
 
