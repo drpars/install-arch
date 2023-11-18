@@ -1,0 +1,11 @@
+#!/bin/bash
+. ./lib
+
+# Mount root partition
+echo "Mounting partitions..."
+mount "$targetroot" "$rootmnt" 
+mkdir -p "$rootmnt"/{efi,boot,home}
+# Mount other partition
+mount "$targetefi" "$rootmnt"/efi
+mount "$targetboot" "$rootmnt"/boot
+mount "$targethome" "$rootmnt"/home

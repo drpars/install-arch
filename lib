@@ -3,6 +3,9 @@
 # Config Options
 cputype="amd"
 kernel="linux"
+# Username and Computer name
+hostname="PANTHERA-DR-ARCH"
+username="drpars"
 # User passwords
 userpasswrd=""
 rootpasswrd=""
@@ -22,9 +25,6 @@ locale="tr_TR.UTF-8"
 keymap="trq"
 font="LatArCyrHeb-1"
 timezone="Europe/Istanbul"
-# Username and Computer name
-hostname="PANTHERA-DR-ARCH"
-username="drpars"
 
 # Root part uuid
 rootuuid=$(lsblk -dno PARTUUID "$targetroot")
@@ -84,7 +84,7 @@ bootloaderopts() {
   # Shell
   cp "$rootmnt"/usr/share/edk2-shell/x64/Shell.efi "$rootmnt"/efi/shellx64.efi
   # Systemd boot install
-  arch-chroot bootctl --esp-path=/efi --boot-path=/boot --efi-boot-option-description="Arch Linux" install
+  arch-chroot "$rootmnt" bootctl --esp-path=/efi --boot-path=/boot --efi-boot-option-description="Arch Linux" install
   # Loader config
   printf "%s\n" "default  arch.conf" "timeout  menu-force" "console-mode  0" | tee "$rootmnt"/efi/loader/loader.conf
   # For arch.conf

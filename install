@@ -43,7 +43,7 @@ arch-chroot "$rootmnt" locale-gen
 echo "Creating local user..."
 arch-chroot "$rootmnt" useradd -G wheel -m "$username"
 sed -i '/# %wheel ALL=(ALL:ALL) ALL/s/^# //g' "$rootmnt"/etc/sudoers
-arch-chroot "$rootmnt" echo drpars:$userpasswrd | chpasswd
+arch-chroot "$rootmnt" echo "$username":$userpasswrd | chpasswd
 # arch-chroot "$rootmnt" echo root:$rootpasswrd | chpasswd
 
 # Create a basic kernel cmdline
