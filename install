@@ -43,10 +43,9 @@ echo "FONT=$font" >>/etc/vconsole.conf
 echo "Creating local user..."
 arch-chroot "$rootmnt" useradd -G wheel -m "$username"
 sed -i '/# %wheel ALL=(ALL:ALL) ALL/s/^# //g' "$rootmnt"/etc/sudoers
-cp -r /root/install-arch "$rootmnt"
-chmod +x "$rootmnt"/install-arch/*
-arch-chroot "$rootmnt" ./install-arch/passwd
-rm -r "$rootmnt"/install-arch
+echo "$username":$userpasswrd | chpasswd -R "$rootmnt"
+# echo root:$rootpasswrd | chpasswd -R "$rootmnt"
+
 
 # Create a basic kernel cmdline
 echo "root=LABEL=Root quiet rw rootfstype=ext4 systemd.unit=graphical.target nvidia-drm.modeset=1" >"$rootmnt"/etc/kernel/cmdline
@@ -105,7 +104,7 @@ else
 fi
 
 # Lock the root account
-# arch-chroot "$rootmnt" usermod -L root
+arch-chroot "$rootmnt" usermod -L root
 
 echo "-----------------------------------"
 echo "- Install complete. Rebooting.... -"
