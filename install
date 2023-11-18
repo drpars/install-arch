@@ -9,7 +9,7 @@ mkfs.ext4 -L Root -F "$targetroot"
 mkfs.ext4 -L Home -F "$targethome"
 # Mount root partition
 echo "Mounting partitions..."
-mount "$targetroot" "$rootmnt" 
+mount "$targetroot" "$rootmnt"
 mkdir -p "$rootmnt"/{efi,boot,home}
 # Mount other partition
 mount "$targetefi" "$rootmnt"/efi
@@ -37,17 +37,19 @@ rm "$rootmnt"/etc/{machine-id,localtime,hostname,shadow,locale.conf} ||
     --welcome=false
 arch-chroot "$rootmnt" locale-gen
 # Font
-# echo "FONT=$font" >>/etc/vconsole.conf
+echo "FONT=$font" >>/etc/vconsole.conf
 
 # Create user
 echo "Creating local user..."
 arch-chroot "$rootmnt" useradd -G wheel -m "$username"
 sed -i '/# %wheel ALL=(ALL:ALL) ALL/s/^# //g' "$rootmnt"/etc/sudoers
-arch-chroot "$rootmnt" echo "$username":$userpasswrd | chpasswd
-# arch-chroot "$rootmnt" echo root:$rootpasswrd | chpasswd
+cp -r /root/install-arch "$rootmnt"
+chmod +x "$rootmnt"/install-arch/*
+arch-chroot "$rootmnt" ./install-arch/passwd
+rm -r "$rootmnt"/install-arch
 
 # Create a basic kernel cmdline
-echo "quiet rw" >"$rootmnt"/etc/kernel/cmdline
+echo "root=LABEL=Root quiet rw rootfstype=ext4 systemd.unit=graphical.target nvidia-drm.modeset=1" >"$rootmnt"/etc/kernel/cmdline
 # Change the HOOKS in mkinitcpio.conf to use systemd hooks
 sed -i -e 's/base udev/base systemd/g' "$rootmnt"/etc/mkinitcpio.conf
 # Change the preset file to generate a Unified Kernel Image
@@ -64,7 +66,7 @@ declare $(grep default_uki "$rootmnt"/etc/mkinitcpio.d/linux.preset)
 arch-chroot "$rootmnt" mkdir -p "$(dirname "${default_uki//\"/}")"
 
 # Generate fstab
-genfstab -U "$rootmnt" >> "$rootmnt"/etc/fstab
+genfstab -U "$rootmnt" >>"$rootmnt"/etc/fstab
 
 #install the gui packages
 echo "Installing GUI..."
@@ -96,8 +98,14 @@ pacmanopts
 # SSH options
 sshopts
 
+if [[ "$(efivar -d --name 8be4df61-93ca-11d2-aa0d-00e098032b8c-SetupMode)" -eq 1 ]]; then
+  arch-chroot "$rootmnt" sbctl sign -s /efi/shellx64.efi
+else
+  echo "Not in Secure Boot setup mode. Skipping..."
+fi
+
 # Lock the root account
-arch-chroot "$rootmnt" usermod -L root
+# arch-chroot "$rootmnt" usermod -L root
 
 echo "-----------------------------------"
 echo "- Install complete. Rebooting.... -"
