@@ -7,11 +7,11 @@ echo "Formatting partitions..."
 mkfs.vfat -F32 -n BOOT "$targetboot"
 mkfs.ext4 -L Root -F "$targetroot"
 mkfs.ext4 -L Home -F "$targethome"
-# first mount root partition
+# Mount root partition
 echo "Mounting partitions..."
 mount "$targetroot" "$rootmnt" 
 mkdir -p "$rootmnt"/{efi,boot,home}
-# other mountable partition
+# Mount other partition
 mount "$targetefi" "$rootmnt"/efi
 mount "$targetboot" "$rootmnt"/boot
 mount "$targethome" "$rootmnt"/home
@@ -57,7 +57,7 @@ sed -i \
   -e "s/PRESETS=('default' 'fallback')/PRESETS=('default')/g" \
   "$rootmnt"/etc/mkinitcpio.d/linux.preset
 
-#read the UKI setting and create the folder structure otherwise mkinitcpio will crash
+# Read the UKI setting and create the folder structure otherwise mkinitcpio will crash
 declare $(grep default_uki "$rootmnt"/etc/mkinitcpio.d/linux.preset)
 arch-chroot "$rootmnt" mkdir -p "$(dirname "${default_uki//\"/}")"
 
@@ -95,11 +95,10 @@ pacmanopts
 sshopts
 
 # Lock the root account
-# arch-chroot "$rootmnt" usermod -L root
+arch-chroot "$rootmnt" usermod -L root
 
 echo "-----------------------------------"
 echo "- Install complete. Rebooting.... -"
 echo "-----------------------------------"
 sleep 10
 sync
-reboot

@@ -80,8 +80,8 @@ bootloaderopts() {
   # Systemd boot install
   bootctl --esp-path=/efi --boot-path=/boot --efi-boot-option-description="Arch Linux" install
   # Loader config
-  printf "%s\n" "default  arch.conf" "timeout  menu-force" "console-mode 0" | tee /efi/loader/loader.conf
-  # Loader entries config
+  printf "%s\n" "default  arch.conf" "timeout  menu-force" "console-mode  0" | tee /efi/loader/loader.conf
+  # For arch.conf
   mkdir -p /efi/loader/entries
   printf "%s\n" "title   Arch Linux" "linux   /vmlinuz-linux" "initrd  /$cputype-ucode.img" "initrd  /initramfs-linux.img" "options root=PARTUUID=$rootuuid rw rootfstype=ext4 systemd.unit=graphical.target nvidia-drm.modeset=1 resume=UUID=$swapuuid resume_offset=$swapopt" | tee /boot/loader/entries/arch.conf
   # Adds a pacman hook which is executed every time systemd is upgraded.
