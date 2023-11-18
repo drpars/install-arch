@@ -43,6 +43,8 @@ arch-chroot "$rootmnt" locale-gen
 echo "Creating local user..."
 arch-chroot "$rootmnt" useradd -G wheel -m "$username"
 sed -i '/# %wheel ALL=(ALL:ALL) ALL/s/^# //g' "$rootmnt"/etc/sudoers
+arch-chroot "$rootmnt" echo drpars:$userpasswrd | chpasswd
+# arch-chroot "$rootmnt" echo root:$rootpasswrd | chpasswd
 
 # Create a basic kernel cmdline
 echo "quiet rw" >"$rootmnt"/etc/kernel/cmdline
@@ -86,9 +88,9 @@ if [[ "$(efivar -d --name 8be4df61-93ca-11d2-aa0d-00e098032b8c-SetupMode)" -eq 1
 else
   echo "Not in Secure Boot setup mode. Skipping..."
 fi
-# Install the systemd-boot bootloader
-arch-chroot "$rootmnt" bootloaderopts
 
+# Install the systemd-boot bootloader
+bootloaderopts
 # Pacman options
 pacmanopts
 # SSH options

@@ -2,6 +2,10 @@
 
 # Config Options
 cputype="amd"
+kernel="linux"
+# User passwords
+userpasswrd=""
+rootpasswrd=""
 # Installation disk
 targetdisk="/dev/nvme0n1"
 targetefi="/dev/nvme0n1p1"
@@ -31,8 +35,9 @@ swapopt=$(filefrag -v "$rootmnt"/swapfile | awk '$1=="0:" {print substr($4, 1, l
 pacstrappacks=(
   base
   base-devel
-  linux
-  linux-firmware
+  $kernel
+  $kernel-headers
+  $kernel-firmware
   $cputype-ucode
   util-linux
   coreutils
@@ -46,8 +51,9 @@ pacstrappacks=(
 # Packs
 guipacs=(
   sbctl
+  openssh
   procps-ng
-  exa
+  eza
   pacman-contrib
   bash-completion
   usbutils
@@ -76,16 +82,16 @@ guipacs=(
 # Functions
 bootloaderopts() {
   # Shell
-  cp /usr/share/edk2-shell/x64/Shell.efi /efi/shellx64.efi
+  cp "$rootmnt"/usr/share/edk2-shell/x64/Shell.efi "$rootmnt"/efi/shellx64.efi
   # Systemd boot install
-  bootctl --esp-path=/efi --boot-path=/boot --efi-boot-option-description="Arch Linux" install
+  arch-chroot bootctl --esp-path=/efi --boot-path=/boot --efi-boot-option-description="Arch Linux" install
   # Loader config
-  printf "%s\n" "default  arch.conf" "timeout  menu-force" "console-mode  0" | tee /efi/loader/loader.conf
+  printf "%s\n" "default  arch.conf" "timeout  menu-force" "console-mode  0" | tee "$rootmnt"/efi/loader/loader.conf
   # For arch.conf
-  mkdir -p /efi/loader/entries
-  printf "%s\n" "title   Arch Linux" "linux   /vmlinuz-linux" "initrd  /$cputype-ucode.img" "initrd  /initramfs-linux.img" "options root=PARTUUID=$rootuuid rw rootfstype=ext4 systemd.unit=graphical.target nvidia-drm.modeset=1 resume=UUID=$swapuuid resume_offset=$swapopt" | tee /boot/loader/entries/arch.conf
+  mkdir -p "$rootmnt"/efi/loader/entries
+  printf "%s\n" "title   Arch Linux" "linux   /vmlinuz-$kernel" "initrd  /$cputype-ucode.img" "initrd  /initramfs-$kernel.img" "options root=PARTUUID=$rootuuid rw rootfstype=ext4 systemd.unit=graphical.target nvidia-drm.modeset=1 resume=UUID=$swapuuid resume_offset=$swapopt" | tee "$rootmnt"/boot/loader/entries/arch.conf
   # Adds a pacman hook which is executed every time systemd is upgraded.
-  printf "%s\n" "[Trigger]" "Type = Package" "Operation = Upgrade" "Target = systemd" "" "[Action]" "Description = Gracefully upgrading systemd-boot..." "When = PostTransaction" "Exec = /usr/bin/systemctl restart systemd-boot-update.service" | tee /etc/pacman.d/hooks/95-systemd-boot.hook
+  printf "%s\n" "[Trigger]" "Type = Package" "Operation = Upgrade" "Target = systemd" "" "[Action]" "Description = Gracefully upgrading systemd-boot..." "When = PostTransaction" "Exec = /usr/bin/systemctl restart systemd-boot-update.service" | tee "$rootmnt"/etc/pacman.d/hooks/95-systemd-boot.hook
 }
 
 pacmanopts() {
