@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# The disc you will install must have four partitions. 
+# The first partition must be "efi", the second partition must be "linux-extended-boot"
+# the third oartition must be "root" and the fourth partition must be "home".
+
 # cputype --> intel , amd
 # kernel  --> linux , linux-lts , linux-zen , linux-hardened , linux-g14
 

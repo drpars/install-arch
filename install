@@ -1,7 +1,7 @@
 #!/bin/bash
 . ./lib
 
-printf "%s\n" "" "First of all, you have to set kernel name, cpu type or locale (etc.) in lib file..." ""
+printf "%s\n" "" "Firstly, you have to set kernel name, cpu type or locale (etc.) in lib file..." ""
 read -n1 -rep "Do you want to continue ? (y,n)" confirm
 if [[ $confirm =~ ^[Yy]$ ]]; then
   # Partitions format and mount
