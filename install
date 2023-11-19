@@ -31,6 +31,9 @@ if [[ $confirm =~ ^[Yy]$ ]]; then
     g14repo
   fi
   pacstrap -K $rootmnt "${pacstrappacks[@]}"
+  if [ $kernel == "linux-g14" ]; then
+    g14repo
+  fi
 
   # Config Options
   echo "Setting up environment..."
