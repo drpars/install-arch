@@ -1,117 +1,125 @@
 #!/bin/bash
 . ./lib
 
-# Partitions format and mount
-echo "Formatting partitions..."
-# mkfs.vfat -F32 -n SYSTEM "$targetefi"
-mkfs.vfat -F32 -n BOOT "$targetboot"
-mkfs.ext4 -L Root -F "$targetroot"
-mkfs.ext4 -L Home -F "$targethome"
-# Mount root partition
-echo "Mounting partitions..."
-mount "$targetroot" "$rootmnt"
-mkdir -p "$rootmnt"/{efi,boot,home}
-# Mount other partition
-mount "$targetefi" "$rootmnt"/efi
-mount "$targetboot" "$rootmnt"/boot
-mount "$targethome" "$rootmnt"/home
-# Swap file
-echo "Creating swapfile..."
-dd if=/dev/zero of="$rootmnt"/swapfile bs=1M count=8192 status=progress
-chmod 600 "$rootmnt"/swapfile
-mkswap "$rootmnt"/swapfile
-swapon "$rootmnt"/swapfile
+printf "%s\n" "" "You have to set first kernel name, cpu type or locale (etc.) in lib file..." ""
+read -n1 -rep "Do you want to continue ? (y,n)" confirm
+if [[ $confirm =~ ^[Yy]$ ]]; then
+  # Partitions format and mount
+  echo "Formatting partitions..."
+  # mkfs.vfat -F32 -n SYSTEM "$targetefi"
+  mkfs.vfat -F32 -n BOOT "$targetboot"
+  mkfs.ext4 -L Root -F "$targetroot"
+  mkfs.ext4 -L Home -F "$targethome"
+  # Mount root partition
+  echo "Mounting partitions..."
+  mount "$targetroot" "$rootmnt"
+  mkdir -p "$rootmnt"/{efi,boot,home}
+  # Mount other partition
+  mount "$targetefi" "$rootmnt"/efi
+  mount "$targetboot" "$rootmnt"/boot
+  mount "$targethome" "$rootmnt"/home
+  # Swap file
+  echo "Creating swapfile..."
+  dd if=/dev/zero of="$rootmnt"/swapfile bs=1M count=8192 status=progress
+  chmod 600 "$rootmnt"/swapfile
+  mkswap "$rootmnt"/swapfile
+  swapon "$rootmnt"/swapfile
 
-# Pacstrap packs
-echo "Pacstrapping..."
-pacstrap -K $rootmnt "${pacstrappacks[@]}"
+  # Pacstrap packs
+  echo "Pacstrapping..."
+  if [ $kernel == "linux-g14" ]; then
+    g14repo
+  fi
+  pacstrap -K $rootmnt "${pacstrappacks[@]}"
 
-# Config Options
-echo "Setting up environment..."
-sed -i -e "/^#"$locale"/s/^#//" "$rootmnt"/etc/locale.gen
-rm "$rootmnt"/etc/{machine-id,localtime,hostname,shadow,locale.conf} ||
-  systemd-firstboot --root "$rootmnt" \
-    --keymap="$keymap" --locale="$locale" \
-    --locale-messages="$locale" --timezone="$timezone" \
-    --hostname="$hostname" --setup-machine-id \
-    --welcome=false
-arch-chroot "$rootmnt" locale-gen
-# Font
-echo "FONT=$font" >>"$rootmnt"/etc/vconsole.conf
+  # Config Options
+  echo "Setting up environment..."
+  sed -i -e "/^#"$locale"/s/^#//" "$rootmnt"/etc/locale.gen
+  rm "$rootmnt"/etc/{machine-id,localtime,hostname,shadow,locale.conf} ||
+    systemd-firstboot --root "$rootmnt" \
+      --keymap="$keymap" --locale="$locale" \
+      --locale-messages="$locale" --timezone="$timezone" \
+      --hostname="$hostname" --setup-machine-id \
+      --welcome=false
+  arch-chroot "$rootmnt" locale-gen
+  # Font
+  echo "FONT=$font" >>"$rootmnt"/etc/vconsole.conf
 
-# Create user
-echo "Creating local user..."
-arch-chroot "$rootmnt" useradd -G wheel -m "$username"
-sed -i '/# %wheel ALL=(ALL:ALL) ALL/s/^# //g' "$rootmnt"/etc/sudoers
-echo $username:$userpasswrd | chpasswd -R $rootmnt
-# echo root:$rootpasswrd | chpasswd -R $rootmnt
+  # Create user
+  echo "Creating local user..."
+  arch-chroot "$rootmnt" useradd -G wheel -m "$username"
+  sed -i '/# %wheel ALL=(ALL:ALL) ALL/s/^# //g' "$rootmnt"/etc/sudoers
+  echo $username:$userpasswrd | chpasswd -R $rootmnt
+  # echo root:$rootpasswrd | chpasswd -R $rootmnt
 
+  # Create a basic kernel cmdline
+  echo "root=LABEL=Root quiet rw rootfstype=ext4 systemd.unit=graphical.target nvidia-drm.modeset=1" >"$rootmnt"/etc/kernel/cmdline
+  # Change the HOOKS in mkinitcpio.conf to use systemd hooks
+  sed -i -e 's/base udev/base systemd/g' "$rootmnt"/etc/mkinitcpio.conf
+  # Change the preset file to generate a Unified Kernel Image
+  sed -i \
+    -e '/^#ALL_config/s/^#//' \
+    -e '/^#default_uki/s/^#//' \
+    -e '/^#default_options/s/^#//' \
+    -e 's/default_image=/#default_image=/g' \
+    -e "s/PRESETS=('default' 'fallback')/PRESETS=('default')/g" \
+    "$rootmnt"/etc/mkinitcpio.d/"$kernel".preset
 
-# Create a basic kernel cmdline
-echo "root=LABEL=Root quiet rw rootfstype=ext4 systemd.unit=graphical.target nvidia-drm.modeset=1" >"$rootmnt"/etc/kernel/cmdline
-# Change the HOOKS in mkinitcpio.conf to use systemd hooks
-sed -i -e 's/base udev/base systemd/g' "$rootmnt"/etc/mkinitcpio.conf
-# Change the preset file to generate a Unified Kernel Image
-sed -i \
-  -e '/^#ALL_config/s/^#//' \
-  -e '/^#default_uki/s/^#//' \
-  -e '/^#default_options/s/^#//' \
-  -e 's/default_image=/#default_image=/g' \
-  -e "s/PRESETS=('default' 'fallback')/PRESETS=('default')/g" \
-  "$rootmnt"/etc/mkinitcpio.d/linux.preset
+  # Read the UKI setting and create the folder structure otherwise mkinitcpio will crash
+  declare $(grep default_uki "$rootmnt"/etc/mkinitcpio.d/"$kernel".preset)
+  arch-chroot "$rootmnt" mkdir -p "$(dirname "${default_uki//\"/}")"
 
-# Read the UKI setting and create the folder structure otherwise mkinitcpio will crash
-declare $(grep default_uki "$rootmnt"/etc/mkinitcpio.d/linux.preset)
-arch-chroot "$rootmnt" mkdir -p "$(dirname "${default_uki//\"/}")"
+  # Generate fstab
+  genfstab -U "$rootmnt" >>"$rootmnt"/etc/fstab
 
-# Generate fstab
-genfstab -U "$rootmnt" >>"$rootmnt"/etc/fstab
+  #install the gui packages
+  echo "Installing GUI..."
+  arch-chroot "$rootmnt" pacman -Sy "${guipacs[@]}" --noconfirm --quiet
 
-#install the gui packages
-echo "Installing GUI..."
-arch-chroot "$rootmnt" pacman -Sy "${guipacs[@]}" --noconfirm --quiet
+  # Enable the services we will need on start up
+  echo "Enabling services..."
+  systemctl --root "$rootmnt" enable systemd-resolved systemd-timesyncd bluetooth NetworkManager sshd
+  # Mask systemd-networkd as we will use NetworkManager instead
+  systemctl --root "$rootmnt" mask systemd-networkd
+  # Regenerate the ramdisk, this will create our UKI
+  echo "Generating UKI and installing Boot Loader..."
+  arch-chroot "$rootmnt" mkinitcpio -P
+  # Secure Boot
+  echo "Setting up Secure Boot..."
+  if [[ "$(efivar -d --name 8be4df61-93ca-11d2-aa0d-00e098032b8c-SetupMode)" -eq 1 ]]; then
+    arch-chroot "$rootmnt" sbctl create-keys
+    arch-chroot "$rootmnt" sbctl enroll-keys -m
+    arch-chroot "$rootmnt" sbctl sign -s -o /usr/lib/systemd/boot/efi/systemd-bootx64.efi.signed /usr/lib/systemd/boot/efi/systemd-bootx64.efi
+    arch-chroot "$rootmnt" sbctl sign -s "${default_uki//\"/}"
+  else
+    echo "Not in Secure Boot setup mode. Skipping..."
+  fi
 
-# Enable the services we will need on start up
-echo "Enabling services..."
-systemctl --root "$rootmnt" enable systemd-resolved systemd-timesyncd bluetooth NetworkManager sshd
-# Mask systemd-networkd as we will use NetworkManager instead
-systemctl --root "$rootmnt" mask systemd-networkd
-# Regenerate the ramdisk, this will create our UKI
-echo "Generating UKI and installing Boot Loader..."
-arch-chroot "$rootmnt" mkinitcpio -p linux
-# Secure Boot
-echo "Setting up Secure Boot..."
-if [[ "$(efivar -d --name 8be4df61-93ca-11d2-aa0d-00e098032b8c-SetupMode)" -eq 1 ]]; then
-  arch-chroot "$rootmnt" sbctl create-keys
-  arch-chroot "$rootmnt" sbctl enroll-keys -m
-  arch-chroot "$rootmnt" sbctl sign -s -o /usr/lib/systemd/boot/efi/systemd-bootx64.efi.signed /usr/lib/systemd/boot/efi/systemd-bootx64.efi
-  arch-chroot "$rootmnt" sbctl sign -s "${default_uki//\"/}"
+  # To sign automatically after Generating UKI
+  printf "%s\n" "#!/usr/bin/env bash" "sbctl sign-all" | tee "$rootmnt"/etc/initcpio/post/uki-sbctl
+  chmod +x "$rootmnt"/etc/initcpio/post/uki-sbctl
+
+  # Install the systemd-boot bootloader
+  bootloaderopts
+  # Pacman options
+  pacmanopts
+  # SSH options
+  sshopts
+
+  if [[ "$(efivar -d --name 8be4df61-93ca-11d2-aa0d-00e098032b8c-SetupMode)" -eq 1 ]]; then
+    arch-chroot "$rootmnt" sbctl sign -s /efi/shellx64.efi
+  else
+    echo "Not in Secure Boot setup mode. Skipping..."
+  fi
+
+  # Lock the root account
+  arch-chroot "$rootmnt" usermod -L root
+
+  echo "-----------------------------------"
+  echo "-     Installation complete.      -"
+  echo "-----------------------------------"
+  sleep 5
+  sync
 else
-  echo "Not in Secure Boot setup mode. Skipping..."
+  printf "%s\n" "" "Please enter your specifications in lib file..."
 fi
-
-# To sign automatically after Generating UKI
-printf "%s\n" "#!/usr/bin/env bash" "sbctl sign-all" | tee "$rootmnt"//etc/initcpio/post/uki-sbctl
-chmod +x "$rootmnt"/etc/initcpio/post/uki-sbctl
-
-# Install the systemd-boot bootloader
-bootloaderopts
-# Pacman options
-pacmanopts
-# SSH options
-sshopts
-
-if [[ "$(efivar -d --name 8be4df61-93ca-11d2-aa0d-00e098032b8c-SetupMode)" -eq 1 ]]; then
-  arch-chroot "$rootmnt" sbctl sign -s /efi/shellx64.efi
-else
-  echo "Not in Secure Boot setup mode. Skipping..."
-fi
-
-# Lock the root account
-arch-chroot "$rootmnt" usermod -L root
-
-echo "-----------------------------------"
-echo "-     Installation complete.      -"
-echo "-----------------------------------"
-sleep 5
-sync

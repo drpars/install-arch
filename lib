@@ -1,8 +1,10 @@
 #!/bin/bash
 
-# cputype --> intel , amd 
-# kernel  --> linux , linux-lts , linux-zen , linux-hardened 
+# cputype --> intel , amd
+# kernel  --> linux , linux-lts , linux-zen , linux-hardened , linux-g14
 
+#--------------------You can change-------------------------
+targetdisk="/dev/nvme0n1"
 # Config Options
 cputype=""
 kernel=""
@@ -12,22 +14,23 @@ username=""
 # User passwords
 userpasswrd=""
 rootpasswrd=""
-# Installation disk
-targetdisk="/dev/nvme0n1"
-targetefi="/dev/nvme0n1p1"
-targetboot="/dev/nvme0n1p2"
-targetroot="/dev/nvme0n1p3"
-targethome="/dev/nvme0n1p4"
-# Mount partitions
-efimnt="/mnt/efi"
-bootmnt="/mnt/boot"
-rootmnt="/mnt"
-homemnt="/mnt/home"
 # Language, vconsole font and timezone
 locale="tr_TR.UTF-8"
 keymap="trq"
 font="LatArCyrHeb-16"
 timezone="Europe/Istanbul"
+#-----------------------------------------------------------
+
+# Installation disk
+targetefi=""$targetdisk"p1"
+targetboot=""$targetdisk"p2"
+targetroot=""$targetdisk"p3"
+targethome=""$targetdisk"p4"
+# Mount partitions
+efimnt="/mnt/efi"
+bootmnt="/mnt/boot"
+rootmnt="/mnt"
+homemnt="/mnt/home"
 
 # Pacstrap
 pacstrappacks=(
@@ -103,4 +106,19 @@ sshopts() {
   sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/g' "$rootmnt"/etc/ssh/sshd_config
   #PasswordAuthentication yes
   sed -i '/#PasswordAuthentication yes/s/^#//g' "$rootmnt"/etc/ssh/sshd_config
+}
+
+g14repo() {
+  # Adding asus-linux repository
+  pacman-key --recv-keys 8F654886F17D497FEFE3DB448B15A6B0E9A3FA35
+  pacman-key --finger 8F654886F17D497FEFE3DB448B15A6B0E9A3FA35
+  pacman-key --lsign-key 8F654886F17D497FEFE3DB448B15A6B0E9A3FA35
+  pacman-key --finger 8F654886F17D497FEFE3DB448B15A6B0E9A3FA35
+
+  if [ -f $rootmnt/etc/pacman.conf ]; then
+    printf "%s\n" "[g14]" "Server = https://arch.asus-linux.org" >>"$rootmnt"/etc/pacman.conf
+  else
+    printf "%s\n" "[g14]" "Server = https://arch.asus-linux.org" >>/etc/pacman.conf
+  fi
+  pacman -Suy
 }
