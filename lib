@@ -123,6 +123,6 @@ g14repo() {
   pacman-key --finger 8F654886F17D497FEFE3DB448B15A6B0E9A3FA35
   sleep 3
 
-  printf "%s\n" "[g14]" "Server = https://arch.asus-linux.org" >>/etc/pacman.conf
+  printf "%s\n" "[g14]" "Server=https://naru.jhyub.dev/$repo" "#Server = https://arch.asus-linux.org" >>/etc/pacman.conf
   pacman -Sy
 }
