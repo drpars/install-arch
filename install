@@ -44,7 +44,7 @@ if [[ $confirm =~ ^[Yy]$ ]]; then
     sleep 3
     arch-chroot $rootmnt pacman-key --finger 8F654886F17D497FEFE3DB448B15A6B0E9A3FA35
     sleep 3
-    printf "%s\n" "" "[g14]" "Server=https://naru.jhyub.dev/$repo" "#Server = https://arch.asus-linux.org" >>"$rootmnt"/etc/pacman.conf
+    printf "%s\n" "" "[g14]" "Server = https://naru.jhyub.dev/\$repo" "#Server = https://arch.asus-linux.org" >>"$rootmnt"/etc/pacman.conf
     arch-chroot "$rootmnt" pacman -Sy
   fi
 
