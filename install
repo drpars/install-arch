@@ -128,6 +128,7 @@ if [[ $confirm =~ ^[Yy]$ ]]; then
 
   # Lock the root account
   # arch-chroot "$rootmnt" usermod -L root
+
   # Creatin ısers passwords
   echo $username:$userpasswrd | chpasswd -R $rootmnt
   echo root:$rootpasswrd | chpasswd -R $rootmnt
