@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# The disc you will install must have four partitions. 
+# The disc you will install must have four partitions.
 # The first partition must be "efi", the second partition must be "linux-extended-boot"
 # the third partition must be "root" and the fourth partition must be "home".
 
@@ -42,7 +42,7 @@ pacstrappacks=(
   base-devel
   $kernel
   $kernel-headers
-  $kernel-firmware
+  linux-firmware
   $cputype-ucode
   util-linux
   coreutils
@@ -115,14 +115,14 @@ sshopts() {
 g14repo() {
   # Adding asus-linux repository
   pacman-key --recv-keys 8F654886F17D497FEFE3DB448B15A6B0E9A3FA35
+  sleep 3
   pacman-key --finger 8F654886F17D497FEFE3DB448B15A6B0E9A3FA35
+  sleep 3
   pacman-key --lsign-key 8F654886F17D497FEFE3DB448B15A6B0E9A3FA35
+  sleep 3
   pacman-key --finger 8F654886F17D497FEFE3DB448B15A6B0E9A3FA35
+  sleep 3
 
-  if [ -f $rootmnt/etc/pacman.conf ]; then
-    printf "%s\n" "[g14]" "Server = https://arch.asus-linux.org" >>"$rootmnt"/etc/pacman.conf
-  else
-    printf "%s\n" "[g14]" "Server = https://arch.asus-linux.org" >>/etc/pacman.conf
-  fi
-  pacman -Suy
+  printf "%s\n" "[g14]" "Server = https://arch.asus-linux.org" >>"$rootmnt"/etc/pacman.conf
+  pacman -Sy
 }
