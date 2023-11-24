@@ -10,7 +10,6 @@
 #--------------------You can change-------------------------
 targetdisk="/dev/nvme0n1"
 # Config Options
-cputype=""
 kernel=""
 # Username and Computer name
 hostname=""
@@ -25,6 +24,14 @@ font="LatArCyrHeb-16"
 timezone="Europe/Istanbul"
 #-----------------------------------------------------------
 
+# cputype
+vendr=$(cat /proc/cpuinfo | awk '/vendor_id/{print $3}' | uniq)
+
+if [[ $vendr == "GenuineIntel" ]]; then
+  cputype="intel"
+elif [[ $vendr == "AuthenticAMD" ]]; then
+  cputype="amd"
+fi
 # Installation disk
 targetefi=""$targetdisk"p1"
 targetboot=""$targetdisk"p2"
