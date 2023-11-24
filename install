@@ -119,6 +119,8 @@ if [[ $confirm =~ ^[Yy]$ ]]; then
   pacmanopts
   # SSH options
   sshopts
+  # Wifi - BT driver - mt7922
+  mt7922
 
   if [[ "$(efivar -d --name 8be4df61-93ca-11d2-aa0d-00e098032b8c-SetupMode)" -eq 1 ]]; then
     arch-chroot "$rootmnt" sbctl sign -s /efi/shellx64.efi

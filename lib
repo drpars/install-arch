@@ -128,5 +128,11 @@ g14repo() {
 }
 
 mt7922() {
-  /lib/firmware/mediatek
+  wireless=$(lspci | awk '/Network controller/{print $6}')
+  if [ $wireless == "MT7922" ]; then
+    if [ ! -d "$rootmnt"/lib/firmware/mediatek ]; then
+      mkdir -p "$rootmnt"/lib/firmware/mediatek
+    fi
+    cp mt7922/* "$rootmnt"/lib/firmware/mediatek/
+  fi
 }
