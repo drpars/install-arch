@@ -126,3 +126,7 @@ g14repo() {
   printf "%s\n" "[g14]" "Server = https://naru.jhyub.dev/\$repo" "#Server = https://arch.asus-linux.org" >>/etc/pacman.conf
   pacman -Sy
 }
+
+mt7922() {
+  /lib/firmware/mediatek
+}
