@@ -135,7 +135,7 @@ if [[ $confirm =~ ^[Yy]$ ]]; then
   echo $username:$userpasswrd | chpasswd -R $rootmnt
   echo root:$rootpasswrd | chpasswd -R $rootmnt
 
-  if [ ! $kernel == "linux-g14" ]; then
+  if [ $kernel != "linux-g14" ]; then
     read -n1 -rep "Do you want to add G14 repo? (y,n) : " confirmg14
     if [[ $confirmg14 =~ ^[Yy]$ ]]; then
       arch-chroot $rootmnt pacman-key --recv-keys 8F654886F17D497FEFE3DB448B15A6B0E9A3FA35
