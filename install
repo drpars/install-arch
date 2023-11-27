@@ -148,6 +148,9 @@ if [[ $confirm =~ ^[Yy]$ ]]; then
       sleep 3
       printf "%s\n" "" "[g14]" "Server = https://naru.jhyub.dev/\$repo" "#Server = https://arch.asus-linux.org" >>"$rootmnt"/etc/pacman.conf
       arch-chroot "$rootmnt" pacman -Sy
+      echo "G14 repo added..."
+    else
+      echo "G14 repo not added..."
     fi
   fi
 
