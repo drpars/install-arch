@@ -133,13 +133,3 @@ g14repo() {
   printf "%s\n" "[g14]" "Server = https://naru.jhyub.dev/\$repo" "#Server = https://arch.asus-linux.org" >>/etc/pacman.conf
   pacman -Sy
 }
-
-mt7922() {
-  wireless=$(lspci | awk '/Network controller/{print $6}')
-  if [ $wireless == "MT7922" ]; then
-    if [ ! -d "$rootmnt"/lib/firmware/mediatek ]; then
-      mkdir -p "$rootmnt"/lib/firmware/mediatek
-    fi
-    cp mt7922/* "$rootmnt"/lib/firmware/mediatek/
-  fi
-}
