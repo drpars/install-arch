@@ -25,12 +25,11 @@ timezone="Europe/Istanbul"
 #-----------------------------------------------------------
 
 # cputype
-vendr=$(cat /proc/cpuinfo | awk '/vendor_id/{print $3}' | uniq)
-
-if [[ $vendr == "GenuineIntel" ]]; then
-  cputype="intel"
-elif [[ $vendr == "AuthenticAMD" ]]; then
+if cat /proc/cpuinfo | awk '/model name/' | uniq | grep -i "amd"; then
   cputype="amd"
+fi
+if cat /proc/cpuinfo | awk '/model name/' | uniq | grep -i "intel"; then
+  cputype="intel"
 fi
 # Installation disk
 targetefi=""$targetdisk"p1"
