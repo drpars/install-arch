@@ -67,7 +67,7 @@ if [[ $confirm =~ ^[Yy]$ ]]; then
   sed -i '/# %wheel ALL=(ALL:ALL) ALL/s/^# //g' "$rootmnt"/etc/sudoers
 
   # Create a basic kernel cmdline
-  echo "root=LABEL=Root quiet rw rootfstype=ext4 systemd.unit=graphical.target nvidia-drm.modeset=1" >"$rootmnt"/etc/kernel/cmdline
+  echo "root=LABEL=Root quiet rw rootfstype=ext4 systemd.unit=graphical.target nvidia-drm.modeset=1 $hbrnation" >"$rootmnt"/etc/kernel/cmdline
   # Change the HOOKS in mkinitcpio.conf to use systemd hooks
   sed -i -e 's/base udev/base systemd/g' "$rootmnt"/etc/mkinitcpio.conf
   # Change the preset file to generate a Unified Kernel Image

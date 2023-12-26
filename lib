@@ -23,14 +23,6 @@ keymap="trq"
 font="LatArCyrHeb-16"
 timezone="Europe/Istanbul"
 #-----------------------------------------------------------
-
-# cputype
-if cat /proc/cpuinfo | awk '/model name/' | uniq | grep -i "amd"; then
-  cputype="amd"
-fi
-if cat /proc/cpuinfo | awk '/model name/' | uniq | grep -i "intel"; then
-  cputype="intel"
-fi
 # Installation disk
 targetefi=""$targetdisk"p1"
 targetboot=""$targetdisk"p2"
@@ -41,6 +33,19 @@ efimnt="/mnt/efi"
 bootmnt="/mnt/boot"
 rootmnt="/mnt"
 homemnt="/mnt/home"
+#-----------------------------------------------------------
+# cputype
+if cat /proc/cpuinfo | awk '/model name/' | uniq | grep -i "amd"; then
+  cputype="amd"
+fi
+if cat /proc/cpuinfo | awk '/model name/' | uniq | grep -i "intel"; then
+  cputype="intel"
+fi
+# swapfile
+part1=$(findmnt -no UUID -T "$rootmnt"/swapfile)
+part2=$(filefrag -v "$rootmnt"/swapfile | awk '$1=="0:" {print substr($4, 1, length($4)-2)}')
+hbrnation="resume=UUID=$part1 resume_offset=$part2"
+#-----------------------------------------------------------
 
 # Pacstrap
 pacstrappacks=(
