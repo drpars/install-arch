@@ -92,9 +92,9 @@ if [[ $confirm =~ ^[Yy]$ ]]; then
 
   # Enable the services we will need on start up
   echo "Enabling services..."
-  systemctl --root "$rootmnt" enable systemd-resolved systemd-timesyncd bluetooth NetworkManager sshd
+  systemctl --root "$rootmnt" enable systemd-resolved systemd-timesyncd bluetooth iwd dhcpcd sshd
   # Mask systemd-networkd as we will use NetworkManager instead
-  systemctl --root "$rootmnt" mask systemd-networkd
+  # systemctl --root "$rootmnt" mask systemd-networkd
   # Regenerate the ramdisk, this will create our UKI
   echo "Generating UKI and installing Boot Loader..."
   arch-chroot "$rootmnt" mkinitcpio -P

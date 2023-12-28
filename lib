@@ -61,7 +61,8 @@ pacstrappacks=(
   dosfstools
   neovim
   git
-  networkmanager
+  iwd
+  dhcpcd
 )
 
 # Packs
