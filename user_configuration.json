@@ -1,0 +1,56 @@
+{
+    "additional-repositories": [
+        "multilib"
+    ],
+    "archinstall-language": "English",
+    "audio_config": {
+        "audio": "pipewire"
+    },
+    "bootloader": "Systemd-boot",
+    "config_version": "2.7.1",
+    "debug": false,
+    "hostname": "archlinux",
+    "kernels": [
+        "linux"
+    ],
+    "locale_config": {
+        "kb_layout": "trq",
+        "sys_enc": "UTF-8",
+        "sys_lang": "tr_TR"
+    },
+    "network_config": {
+        "type": "iso"
+    },
+    "no_pkg_lookups": false,
+    "ntp": true,
+    "offline": false,
+    "packages": [
+        "linux-headers",
+        "neovim",
+        "git",
+        "sbctl",
+        "eza",
+        "pacman-contrib",
+        "bash-completion",
+        "xdg-user-dirs",
+        "xdg-utils"
+    ],
+    "parallel downloads": 0,
+    "profile_config": {
+        "gfx_driver": null,
+        "greeter": null,
+        "profile": {
+            "custom_settings": {},
+            "details": [],
+            "main": "Minimal"
+        }
+    },
+    "script": "guided",
+    "silent": false,
+    "skip_ntp": false,
+    "skip_version_check": false,
+    "swap": false,
+    "timezone": "Europe/Istanbul",
+    "uki": true,
+    "version": "2.7.1"
+}
