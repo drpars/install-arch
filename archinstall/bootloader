@@ -1,0 +1,61 @@
+#!/bin/bash
+
+# Shell
+sudo pacman -S --needed edk2-shell
+sudo cp /usr/share/edk2-shell/x64/Shell.efi /boot/shellx64.efi
+# Change the HOOKS in mkinitcpio.conf to use systemd hooks
+# sed -i -e 's/base udev/base systemd/g' /etc/mkinitcpio.conf
+# Modfy linux.preset
+lnx="
+linux
+linux-lts
+linux-zen
+linux-hardened
+linux-g14
+"
+
+for sel in $lnx; do
+  if [ -f /etc/mkinitcpio.d/$sel.preset ]; then
+    sudo sed -i \
+      -e '/^#ALL_config/s/^#//' \
+      -e '/^#default_uki/s/^#//' \
+      -e '/^#default_options/s/^#//' \
+      -e 's/^default_image=/#default_image=/g' \
+      -e "s/PRESETS=('default' 'fallback')/PRESETS=('default')/g" \
+      /etc/mkinitcpio.d/$sel.preset
+  fi
+done
+for sel in $lnx; do
+  if [ -f /boot/EFI/Linux/arch-$sel-fallback.efi ]; then
+    sudo bootctl unlink arch-$sel-fallback.efi
+  fi
+done
+# Loader config
+printf "%s\n" "timeout  menu-force" "console-mode  max" | sudo tee /boot/loader/loader.conf
+# Secure Boot with sbctl
+if [[ "$(efivar -d --name 8be4df61-93ca-11d2-aa0d-00e098032b8c-SetupMode)" -eq 1 ]]; then
+  echo "Setting up Secure Boot..."
+  sudo sbctl create-keys
+  sudo sbctl enroll-keys -m
+  sudo sbctl sign -s -o /usr/lib/systemd/boot/efi/systemd-bootx64.efi.signed /usr/lib/systemd/boot/efi/systemd-bootx64.efi
+  for sel in $lnx; do
+    if [ -f /boot/EFI/Linux/arch-$sel.efi ]; then
+      sudo sbctl sign -s /boot/EFI/Linux/arch-$sel.efi
+    fi
+  done
+  sudo sbctl sign -s /boot/shellx64.efi
+else
+  echo "Not in Secure Boot setup mode. Skipping..."
+fi
+
+if [ ! -f /etc/initcpio/post/uki-sbctl ]; then
+  # To sign automatically after Generating UKI
+  printf "%s\n" "#!/usr/bin/env bash" "sbctl sign-all" | sudo tee /etc/initcpio/post/uki-sbctl
+  sudo chmod +x /etc/initcpio/post/uki-sbctl
+fi
+
+sudo mkinitcpio -P
+
+if [ -f /usr/bin/bootctl ]; then
+  sudo bootctl install
+fi
