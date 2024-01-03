@@ -4,7 +4,7 @@
 sudo pacman -S --needed edk2-shell
 sudo cp /usr/share/edk2-shell/x64/Shell.efi /boot/shellx64.efi
 # Change the HOOKS in mkinitcpio.conf to use systemd hooks
-# sed -i -e 's/base udev/base systemd/g' /etc/mkinitcpio.conf
+sed -i -e 's/base udev/base systemd/g' /etc/mkinitcpio.conf
 # Modfy linux.preset
 lnx="
 linux
